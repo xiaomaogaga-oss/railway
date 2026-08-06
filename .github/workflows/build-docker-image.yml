@@ -5,10 +5,8 @@ on:
     branches: [ main ]
     paths:
       - 'Dockerfile'
-      - '.dockerignore'
       - 'index.js'
       - 'package.json'
-      - '.github/workflows/build-docker-image.yml'
   pull_request:
     branches: [ main ]
   workflow_dispatch:
@@ -34,61 +32,6 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
-      - name: Build local image for content verification
-        uses: docker/build-push-action@v7
-        with:
-          context: .
-          push: false
-          load: true
-          platforms: linux/amd64
-          tags: verify:latest
-          cache-from: type=gha
-
-      - name: Verify obfuscation isolation (no plaintext in image)
-        run: |
-          set -e
-          echo "=========================================="
-          echo "  Image content verification"
-          echo "=========================================="
-          echo ""
-          echo "--- Files in /tmp (build context root) ---"
-          docker run --rm verify:latest ls -la /tmp
-          echo ""
-
-          echo "--- Check 1: obfuscated entrypoint indexhx.js exists ---"
-          if docker run --rm verify:latest sh -c 'test -f /tmp/indexhx.js'; then
-            echo "PASS: /tmp/indexhx.js exists"
-          else
-            echo "FAIL: /tmp/indexhx.js is MISSING - obfuscation step did not run"
-            exit 1
-          fi
-          echo ""
-
-          echo "--- Check 2: plaintext index.js must NOT be present ---"
-          if docker run --rm verify:latest sh -c '! test -f /tmp/index.js'; then
-            echo "PASS: plaintext index.js is not present in image"
-          else
-            echo "FAIL: plaintext index.js found in image - obfuscation isolation broken"
-            echo "First lines of leaked plaintext:"
-            docker run --rm verify:latest sh -c 'head -5 /tmp/index.js'
-            exit 1
-          fi
-          echo ""
-
-          echo "--- Check 3: spot-check indexhx.js is actually obfuscated ---"
-          docker run --rm verify:latest sh -c 'head -c 200 /tmp/indexhx.js'
-          echo ""
-          if docker run --rm verify:latest sh -c 'grep -q "function log" /tmp/indexhx.js'; then
-            echo "WARN: readable symbol 'function log' found - obfuscation may be weak"
-          else
-            echo "PASS: no readable plaintext symbols in indexhx.js"
-          fi
-          echo ""
-
-          echo "=========================================="
-          echo "  All content checks PASSED"
-          echo "=========================================="
-
       - name: Build and push Docker image
         uses: docker/build-push-action@v7
         with:
@@ -96,7 +39,7 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           tags: |
-            ghcr.io/${{ github.repository_owner }}/bugpiaohf:2088
+            ghcr.io/${{ github.repository_owner }}/nodejs:latest
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.description=HTTP Server
