@@ -1,21 +1,18 @@
 {
-  "name": "node-app",
-  "version": "1.0.0",
-  "description": "Node.js web application",
-  "main": "indexhx.js",
-  "author": "eooce",
+  "name": "nodejs",
+  "version": "1,0,0",
+  "description": "Thsi is a node project",
+  "main": "index.js",
+  "author": "",
   "repository": "",
   "license": "MIT",
   "private": false,
   "scripts": {
-    "obfuscate": "javascript-obfuscator index.js --output indexhx.js",
     "dev": "node index.js",
-    "start": "node indexhx.js"
+    "start": "node index.js"
   },
   "dependencies": {
-    "axios": "latest",
-    "express": "^4.18.2",
-    "javascript-obfuscator": "^5.1.0"
+    "axios": "latest"
   },
   "engines": {
     "node": ">=14"

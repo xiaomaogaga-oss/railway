@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CodeFlow is the AI-native visual development platform. Design, build, and ship production apps from a single canvas — write less code, ship faster.">
+    <title>CodeFlow — AI-Native Visual Development Platform</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2224%22 fill=%22%236366f1%22/><path d=%22M30 35 L20 50 L30 65 M70 35 L80 50 L70 65 M58 28 L42 72%22 stroke=%22white%22 stroke-width=%227%22 fill=%22none%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #0b0d12;
+            --bg-soft: #11141c;
+            --bg-card: #161a24;
+            --bg-elev: #1c2130;
+            --border: #232938;
+            --border-light: #2d3447;
+            --text: #e8eaf0;
+            --text-soft: #a0a6b8;
+            --text-dim: #6b7185;
+            --accent: #6366f1;
+            --accent-2: #8b5cf6;
+            --accent-3: #ec4899;
+            --cyan: #06b6d4;
+            --green: #10b981;
+            --amber: #f59e0b;
+            --grad: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+            --grad-soft: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(236,72,153,0.12));
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a { color: inherit; text-decoration: none; }
+        ul { list-style: none; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 12px 22px; border-radius: 10px; font-weight: 600; font-size: 14.5px;
+            cursor: pointer; border: none; transition: all .2s; font-family: inherit; white-space: nowrap;
+        }
+        .btn-primary { background: var(--grad); color: #fff; box-shadow: 0 8px 30px rgba(99,102,241,.35); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(99,102,241,.5); }
+        .btn-ghost { background: rgba(255,255,255,.04); color: var(--text); border: 1px solid var(--border-light); }
+        .btn-ghost:hover { border-color: var(--accent); background: rgba(99,102,241,.08); }
+
+        nav {
+            position: fixed; top: 0; width: 100%; z-index: 1000;
+            background: rgba(11,13,18,.72); backdrop-filter: blur(16px) saturate(180%);
+            border-bottom: 1px solid transparent; transition: border-color .3s;
+        }
+        nav.scrolled { border-bottom-color: var(--border); }
+        .nav-inner { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; }
+        .logo { display: flex; align-items: center; gap: 11px; font-weight: 700; font-size: 19px; letter-spacing: -.01em; }
+        .logo-icon { width: 34px; height: 34px; border-radius: 9px; background: var(--grad); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(99,102,241,.4); }
+        .logo-icon svg { width: 20px; height: 20px; }
+        .nav-links { display: flex; gap: 34px; align-items: center; }
+        .nav-links a { color: var(--text-soft); font-size: 14.5px; font-weight: 500; transition: color .2s; }
+        .nav-links a:hover { color: var(--text); }
+        .nav-cta { display: flex; gap: 12px; align-items: center; }
+        .nav-cta .signin { color: var(--text-soft); font-size: 14.5px; font-weight: 500; }
+        .mobile-toggle { display: none; background: none; border: none; color: var(--text); font-size: 22px; cursor: pointer; }
+
+        .hero { position: relative; padding: 150px 0 90px; overflow: hidden; }
+        .hero::before { content: ''; position: absolute; top: -150px; left: 50%; transform: translateX(-50%); width: 900px; height: 600px; background: radial-gradient(ellipse at center, rgba(99,102,241,.25), transparent 60%); filter: blur(40px); z-index: 0; }
+        .hero::after { content: ''; position: absolute; top: 100px; right: -100px; width: 500px; height: 500px; background: radial-gradient(circle, rgba(236,72,153,.18), transparent 70%); filter: blur(60px); z-index: 0; }
+        .hero-inner { position: relative; z-index: 1; text-align: center; max-width: 880px; margin: 0 auto; }
+        .pill { display: inline-flex; align-items: center; gap: 9px; padding: 7px 15px 7px 7px; background: rgba(255,255,255,.04); border: 1px solid var(--border-light); border-radius: 999px; font-size: 13px; color: var(--text-soft); margin-bottom: 30px; cursor: pointer; transition: all .2s; }
+        .pill:hover { border-color: var(--accent); }
+        .pill .tag { background: var(--grad); color: #fff; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; letter-spacing: .02em; }
+        .pill i { font-size: 11px; }
+        .hero h1 { font-size: 68px; font-weight: 800; line-height: 1.05; letter-spacing: -.035em; margin-bottom: 26px; }
+        .hero h1 .grad { background: var(--grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero p.sub { font-size: 21px; color: var(--text-soft); max-width: 660px; margin: 0 auto 40px; line-height: 1.55; }
+        .hero-cta { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-bottom: 18px; }
+        .hero-note { color: var(--text-dim); font-size: 13.5px; }
+        .hero-note i { color: var(--green); }
+
+        .editor-mock { margin-top: 70px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: 0 40px 100px rgba(0,0,0,.5); text-align: left; max-width: 1000px; margin-left: auto; margin-right: auto; }
+        .editor-bar { display: flex; align-items: center; gap: 8px; padding: 13px 16px; background: var(--bg-elev); border-bottom: 1px solid var(--border); }
+        .editor-bar .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .dot-r { background: #ff5f57; } .dot-y { background: #febc2e; } .dot-g { background: #28c840; }
+        .editor-bar .file { margin-left: 14px; color: var(--text-dim); font-size: 13px; font-family: 'JetBrains Mono', monospace; display: flex; align-items: center; gap: 7px; }
+        .editor-body { display: grid; grid-template-columns: 200px 1fr 260px; min-height: 380px; }
+        .editor-side { background: var(--bg-soft); border-right: 1px solid var(--border); padding: 16px 12px; font-size: 13px; }
+        .editor-side .grp { color: var(--text-dim); font-size: 11px; text-transform: uppercase; letter-spacing: .07em; padding: 8px 8px 6px; font-weight: 600; }
+        .editor-side .item { display: flex; align-items: center; gap: 9px; padding: 6px 8px; border-radius: 6px; color: var(--text-soft); cursor: pointer; }
+        .editor-side .item.active { background: rgba(99,102,241,.15); color: var(--text); }
+        .editor-side .item i { width: 14px; font-size: 12px; color: var(--accent-2); }
+        .editor-main { padding: 20px 24px; font-family: 'JetBrains Mono', monospace; font-size: 13.5px; line-height: 1.85; overflow: hidden; }
+        .ln { display: flex; } .ln-no { color: var(--text-dim); width: 24px; text-align: right; margin-right: 18px; user-select: none; }
+        .kw { color: #c678dd; } .fn { color: #61afef; } .st { color: #98c379; } .nm { color: #d19a66; } .cm { color: var(--text-dim); } .vr { color: #e06c75; }
+        .editor-pane { background: var(--bg-soft); border-left: 1px solid var(--border); padding: 16px; }
+        .editor-pane h5 { font-size: 11px; text-transform: uppercase; letter-spacing: .07em; color: var(--text-dim); margin-bottom: 12px; font-weight: 600; }
+        .ai-prompt { background: var(--bg-elev); border: 1px solid var(--border-light); border-radius: 9px; padding: 10px 12px; font-size: 12.5px; color: var(--text-soft); margin-bottom: 12px; display: flex; gap: 9px; }
+        .ai-prompt i { color: var(--accent); margin-top: 2px; }
+        .comp-card { background: var(--bg-elev); border: 1px solid var(--border); border-radius: 9px; padding: 11px 12px; margin-bottom: 8px; font-size: 12.5px; }
+        .comp-card .h { display: flex; align-items: center; gap: 8px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+        .comp-card .h i { color: var(--cyan); }
+        .comp-card .d { color: var(--text-dim); font-size: 11.5px; }
+
+        .logos { padding: 50px 0; border-bottom: 1px solid var(--border); }
+        .logos p { text-align: center; color: var(--text-dim); font-size: 13px; margin-bottom: 28px; letter-spacing: .04em; }
+        .logo-row { display: flex; justify-content: center; align-items: center; gap: 56px; flex-wrap: wrap; opacity: .7; }
+        .logo-row span { font-weight: 700; font-size: 21px; color: var(--text-soft); letter-spacing: -.02em; }
+
+        section.block { padding: 100px 0; }
+        .sec-head { text-align: center; max-width: 700px; margin: 0 auto 64px; }
+        .eyebrow { color: var(--accent); font-size: 13.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 14px; }
+        .sec-head h2 { font-size: 46px; font-weight: 800; letter-spacing: -.025em; margin-bottom: 18px; line-height: 1.1; }
+        .sec-head p { color: var(--text-soft); font-size: 18.5px; }
+
+        .bento { display: grid; grid-template-columns: repeat(6, 1fr); gap: 18px; }
+        .bento .c { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 30px; transition: all .3s; }
+        .bento .c:hover { border-color: var(--border-light); transform: translateY(-3px); }
+        .bento .lg { grid-column: span 4; }
+        .bento .sm { grid-column: span 2; }
+        .bento .md { grid-column: span 3; }
+        .fic { width: 46px; height: 46px; border-radius: 12px; background: var(--grad-soft); border: 1px solid var(--border-light); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 19px; margin-bottom: 18px; }
+        .bento h3 { font-size: 20px; font-weight: 700; margin-bottom: 9px; letter-spacing: -.01em; }
+        .bento p { color: var(--text-soft); font-size: 14.5px; line-height: 1.65; }
+        .bento .lg .demo { margin-top: 22px; background: var(--bg-soft); border: 1px solid var(--border); border-radius: 10px; padding: 14px; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; color: var(--text-soft); }
+        .bento .lg .demo .row { display: flex; align-items: center; gap: 10px; padding: 4px 0; }
+        .bento .lg .demo .chk { color: var(--green); }
+        .bento .lg .demo .pend { color: var(--amber); }
+
+        .wf { background: var(--bg-soft); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+        .wf-steps { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; margin-top: 8px; }
+        .wf-step { position: relative; padding: 32px 28px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; }
+        .wf-num { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--accent); font-weight: 600; margin-bottom: 14px; }
+        .wf-step h3 { font-size: 19px; font-weight: 700; margin-bottom: 10px; }
+        .wf-step p { color: var(--text-soft); font-size: 14.5px; }
+        .wf-step .ic { font-size: 26px; color: var(--accent-2); margin-bottom: 16px; }
+
+        .test-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+        .tcard { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 28px; }
+        .tcard .stars { color: var(--amber); font-size: 13px; margin-bottom: 14px; }
+        .tcard blockquote { font-size: 15px; line-height: 1.7; margin-bottom: 22px; color: var(--text); }
+        .tauthor { display: flex; align-items: center; gap: 12px; }
+        .tavatar { width: 40px; height: 40px; border-radius: 50%; background: var(--grad); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; font-size: 14px; }
+        .tauthor strong { display: block; font-size: 14px; }
+        .tauthor span { font-size: 12.5px; color: var(--text-dim); }
+
+        .pricing { background: var(--bg-soft); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+        .price-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 22px; align-items: start; }
+        .pcard { background: var(--bg-card); border: 1px solid var(--border); border-radius: 18px; padding: 36px 30px; position: relative; }
+        .pcard.pop { border-color: var(--accent); box-shadow: 0 0 50px rgba(99,102,241,.25); }
+        .pcard .ribbon { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--grad); color: #fff; font-size: 11.5px; font-weight: 700; padding: 5px 14px; border-radius: 999px; letter-spacing: .02em; }
+        .pname { font-size: 15px; font-weight: 600; color: var(--text-soft); margin-bottom: 8px; }
+        .pprice { font-size: 50px; font-weight: 800; letter-spacing: -.025em; }
+        .pprice small { font-size: 15px; font-weight: 500; color: var(--text-dim); }
+        .pdesc { color: var(--text-soft); font-size: 14px; margin: 8px 0 24px; }
+        .pcard .btn { width: 100%; margin-bottom: 26px; }
+        .pfeat li { padding: 11px 0; color: var(--text-soft); font-size: 14px; display: flex; align-items: center; gap: 11px; border-bottom: 1px solid var(--border); }
+        .pfeat li:last-child { border-bottom: none; }
+        .pfeat i { color: var(--green); font-size: 13px; }
+
+        .faq-list { max-width: 780px; margin: 0 auto; }
+        .faq-item { border-bottom: 1px solid var(--border); }
+        .faq-q { display: flex; justify-content: space-between; align-items: center; padding: 24px 0; font-weight: 600; font-size: 17.5px; cursor: pointer; gap: 20px; }
+        .faq-q i { color: var(--accent); transition: transform .3s; flex-shrink: 0; }
+        .faq-item.open .faq-q i { transform: rotate(45deg); }
+        .faq-a { max-height: 0; overflow: hidden; transition: max-height .35s ease, padding .35s ease; color: var(--text-soft); font-size: 15px; line-height: 1.7; }
+        .faq-item.open .faq-a { max-height: 240px; padding-bottom: 24px; }
+
+        .cta-band { background: var(--grad); border-radius: 22px; padding: 64px 48px; text-align: center; margin: 0 0 60px; position: relative; overflow: hidden; }
+        .cta-band::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 30% 20%, rgba(255,255,255,.18), transparent 50%); }
+        .cta-band > * { position: relative; }
+        .cta-band h2 { font-size: 38px; font-weight: 800; margin-bottom: 14px; letter-spacing: -.02em; }
+        .cta-band p { color: rgba(255,255,255,.88); font-size: 17.5px; margin-bottom: 30px; }
+        .cta-band .btn { background: #fff; color: var(--accent); }
+        .cta-band .btn:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(0,0,0,.25); }
+
+        footer { border-top: 1px solid var(--border); padding: 64px 0 32px; background: var(--bg-soft); }
+        .foot-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 50px; }
+        .foot-about p { color: var(--text-soft); font-size: 14px; margin-top: 16px; max-width: 300px; line-height: 1.6; }
+        .foot-col h4 { font-size: 12.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--text-dim); margin-bottom: 16px; font-weight: 600; }
+        .foot-col li { margin-bottom: 11px; }
+        .foot-col a { color: var(--text-soft); font-size: 14px; transition: color .2s; }
+        .foot-col a:hover { color: var(--text); }
+        .foot-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 28px; border-top: 1px solid var(--border); color: var(--text-dim); font-size: 13px; flex-wrap: wrap; gap: 16px; }
+        .foot-social { display: flex; gap: 12px; }
+        .foot-social a { width: 34px; height: 34px; border-radius: 9px; background: var(--bg-card); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--text-soft); transition: all .2s; }
+        .foot-social a:hover { color: var(--accent); border-color: var(--accent); }
+
+        @media (max-width: 980px) {
+            .nav-links, .nav-cta .signin { display: none; }
+            .mobile-toggle { display: block; }
+            .hero h1 { font-size: 44px; }
+            .hero p.sub { font-size: 18px; }
+            .sec-head h2 { font-size: 32px; }
+            .editor-body { grid-template-columns: 1fr; }
+            .editor-side, .editor-pane { display: none; }
+            .bento { grid-template-columns: 1fr; }
+            .bento .lg, .bento .sm, .bento .md { grid-column: span 1; }
+            .wf-steps, .test-grid, .price-grid { grid-template-columns: 1fr; }
+            .foot-grid { grid-template-columns: 1fr 1fr; }
+            .cta-band { padding: 44px 24px; }
+            .cta-band h2 { font-size: 27px; }
+        }
+    </style>
+</head>
+<body>
+
+<nav id="nav">
+    <div class="container nav-inner">
+        <a href="#" class="logo">
+            <div class="logo-icon">
+                <svg viewBox="0 0 100 100" fill="none"><path d="M30 35 L20 50 L30 65 M70 35 L80 50 L70 65 M58 28 L42 72" stroke="white" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <span>CodeFlow</span>
+        </a>
+        <ul class="nav-links">
+            <li><a href="#features">Features</a></li>
+            <li><a href="#workflow">How it works</a></li>
+            <li><a href="#pricing">Pricing</a></li>
+            <li><a href="#faq">Docs</a></li>
+            <li><a href="#">Blog</a></li>
+        </ul>
+        <div class="nav-cta">
+            <a href="#" class="signin">Sign in</a>
+            <a href="#pricing" class="btn btn-primary">Start free</a>
+        </div>
+        <button class="mobile-toggle" id="mtoggle"><i class="fas fa-bars"></i></button>
+    </div>
+</nav>
+
+<header class="hero">
+    <div class="container hero-inner">
+        <a href="#" class="pill">
+            <span class="tag">NEW</span>
+            <span>Flow Agent 2.0 — build full apps from a single prompt</span>
+            <i class="fas fa-arrow-right"></i>
+        </a>
+        <h1>Build software <span class="grad">visually</span>,<br>ship it like code</h1>
+        <p class="sub">CodeFlow is the AI-native visual development platform. Drag, drop, and describe what you want — we generate production-grade React, with real version control and zero lock-in.</p>
+        <div class="hero-cta">
+            <a href="#pricing" class="btn btn-primary">Start building free <i class="fas fa-arrow-right"></i></a>
+            <a href="#workflow" class="btn btn-ghost"><i class="fas fa-circle-play"></i> Watch 2-min demo</a>
+        </div>
+        <div class="hero-note"><i class="fas fa-check-circle"></i> Free forever for personal projects · No credit card required</div>
+
+        <div class="editor-mock">
+            <div class="editor-bar">
+                <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+                <div class="file"><i class="fas fa-folder-open"></i> checkout-flow / App.tsx</div>
+            </div>
+            <div class="editor-body">
+                <div class="editor-side">
+                    <div class="grp">Project</div>
+                    <div class="item"><i class="fas fa-cube"></i> components</div>
+                    <div class="item active"><i class="fab fa-react"></i> App.tsx</div>
+                    <div class="item"><i class="fas fa-database"></i> schema.prisma</div>
+                    <div class="item"><i class="fas fa-paint-brush"></i> theme.json</div>
+                    <div class="item"><i class="fas fa-server"></i> api/billing</div>
+                    <div class="grp">Canvas</div>
+                    <div class="item"><i class="fas fa-th-large"></i> Layout</div>
+                    <div class="item"><i class="fas fa-font"></i> Typography</div>
+                </div>
+                <div class="editor-main">
+                    <div class="ln"><span class="ln-no">1</span><span><span class="kw">import</span> { Flow } <span class="kw">from</span> <span class="st">"@codeflow/ui"</span></span></div>
+                    <div class="ln"><span class="ln-no">2</span><span></span></div>
+                    <div class="ln"><span class="ln-no">3</span><span><span class="kw">export default function</span> <span class="fn">Checkout</span>() {</span></div>
+                    <div class="ln"><span class="ln-no">4</span><span>  <span class="kw">const</span> <span class="vr">cart</span> = <span class="fn">useCart</span>(<span class="vr">userId</span>)</span></div>
+                    <div class="ln"><span class="ln-no">5</span><span>  <span class="kw">const</span> <span class="vr">session</span> = <span class="fn">createSession</span>(<span class="vr">cart</span>.<span class="vr">total</span>)</span></div>
+                    <div class="ln"><span class="ln-no">6</span><span></span></div>
+                    <div class="ln"><span class="ln-no">7</span><span>  <span class="kw">return</span> (</span></div>
+                    <div class="ln"><span class="ln-no">8</span><span>    &lt;<span class="fn">Flow.Canvas</span> <span class="vr">theme</span>=<span class="st">"minimal"</span>&gt;</span></div>
+                    <div class="ln"><span class="ln-no">9</span><span>      &lt;<span class="fn">Flow.Payment</span> <span class="vr">provider</span>=<span class="st">"stripe"</span> <span class="vr">session</span>={<span class="vr">session</span>} /&gt;</span></div>
+                    <div class="ln"><span class="ln-no">10</span><span>      &lt;<span class="fn">Flow.Confirm</span> <span class="vr">onDone</span>={<span class="fn">trackPurchase</span>} /&gt;</span></div>
+                    <div class="ln"><span class="ln-no">11</span><span>    &lt;/<span class="fn">Flow.Canvas</span>&gt;</span></div>
+                    <div class="ln"><span class="ln-no">12</span><span>  )</span></div>
+                    <div class="ln"><span class="ln-no">13</span><span>}</span></div>
+                </div>
+                <div class="editor-pane">
+                    <h5>Flow Agent</h5>
+                    <div class="ai-prompt">
+                        <i class="fas fa-wand-magic-sparkles"></i>
+                        <span>"Add Apple Pay and a discount field"</span>
+                    </div>
+                    <h5>Components</h5>
+                    <div class="comp-card">
+                        <div class="h"><i class="fas fa-credit-card"></i> Payment</div>
+                        <div class="d">Stripe · Apple Pay · 3 more</div>
+                    </div>
+                    <div class="comp-card">
+                        <div class="h"><i class="fas fa-tag"></i> DiscountField</div>
+                        <div class="d">Generated · wired to cart.total</div>
+                    </div>
+                    <div class="comp-card">
+                        <div class="h"><i class="fas fa-circle-check"></i> Confirm</div>
+                        <div class="d">Analytics ready</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="logos">
+    <div class="container">
+        <p>POWERING TEAMS AT FAST-MOVING COMPANIES</p>
+        <div class="logo-row">
+            <span>◇ Vertex</span>
+            <span>◎ Lumen</span>
+            <span>✦ Northwind</span>
+            <span>⬡ Hexa</span>
+            <span>◈ Pattern</span>
+            <span>▲ Apex</span>
+        </div>
+    </div>
+</div>
+
+<section class="block" id="features">
+    <div class="container">
+        <div class="sec-head">
+            <div class="eyebrow">The platform</div>
+            <h2>Everything to ship a real product</h2>
+            <p>From the first wireframe to production deploys — one canvas, real code, no plugins to stitch together.</p>
+        </div>
+        <div class="bento">
+            <div class="c lg">
+                <div class="fic"><i class="fas fa-wand-magic-sparkles"></i></div>
+                <h3>Flow Agent — describe, don't draw</h3>
+                <p>Type what you want in plain English. Flow Agent understands your schema, design system, and existing components, then writes idiomatic code you actually own.</p>
+                <div class="demo">
+                    <div class="row"><i class="fas fa-check chk"></i> Parse intent &amp; match design tokens</div>
+                    <div class="row"><i class="fas fa-check chk"></i> Generate typed React components</div>
+                    <div class="row"><i class="fas fa-check chk"></i> Wire to your data layer automatically</div>
+                    <div class="row"><i class="fas fa-circle-notch pend"></i> Run integration tests (live)</div>
+                </div>
+            </div>
+            <div class="c sm">
+                <div class="fic"><i class="fas fa-code-branch"></i></div>
+                <h3>Real Git underneath</h3>
+                <p>Every change is a commit. Branch, review, merge — CodeFlow exports clean code, not proprietary blobs.</p>
+            </div>
+            <div class="c md">
+                <div class="fic"><i class="fas fa-palette"></i></div>
+                <h3>Design system native</h3>
+                <p>Import from Figma or define tokens in-app. Components stay in sync across every screen, forever.</p>
+            </div>
+            <div class="c md">
+                <div class="fic"><i class="fas fa-database"></i></div>
+                <h3>Data, auth &amp; API in one place</h3>
+                <p>Model your schema visually and get a typed API, auth flows, and a Postgres database — no YAML required.</p>
+            </div>
+            <div class="c sm">
+                <div class="fic"><i class="fas fa-rocket"></i></div>
+                <h3>One-click deploys</h3>
+                <p>Preview every branch, ship to prod with a toggle. Global edge out of the box.</p>
+            </div>
+            <div class="c lg">
+                <div class="fic"><i class="fas fa-people-group"></i></div>
+                <h3>Built for whole teams</h3>
+                <p>Designers see the canvas. Engineers see the code. Both edit the same source — comments, presence, and review built in.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="block wf" id="workflow">
+    <div class="container">
+        <div class="sec-head">
+            <div class="eyebrow">How it works</div>
+            <h2>Idea to production in three steps</h2>
+        </div>
+        <div class="wf-steps">
+            <div class="wf-step">
+                <div class="ic"><i class="fas fa-pen-ruler"></i></div>
+                <div class="wf-num">01 / DESIGN</div>
+                <h3>Sketch or describe</h3>
+                <p>Start from a blank canvas, a Figma import, or a sentence. Flow Agent turns it into structured, editable components.</p>
+            </div>
+            <div class="wf-step">
+                <div class="ic"><i class="fas fa-layer-group"></i></div>
+                <div class="wf-num">02 / BUILD</div>
+                <h3>Connect data &amp; logic</h3>
+                <p>Bind components to your schema, add auth and API routes, and write custom logic where you need it — all visually.</p>
+            </div>
+            <div class="wf-step">
+                <div class="ic"><i class="fas fa-cloud-arrow-up"></i></div>
+                <div class="wf-num">03 / SHIP</div>
+                <h3>Deploy to the edge</h3>
+                <p>Push to a preview URL, gather feedback, then promote to production. Roll back instantly if something breaks.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="block">
+    <div class="container">
+        <div class="sec-head">
+            <div class="eyebrow">Loved by builders</div>
+            <h2>From prototype to scale, faster</h2>
+        </div>
+        <div class="test-grid">
+            <div class="tcard">
+                <div class="stars">★★★★★</div>
+                <blockquote>"Our design and engineering teams finally edit the same thing. We cut a feature that used to take three weeks down to four days, and nobody fights over Figma-to-code handoff anymore."</blockquote>
+                <div class="tauthor">
+                    <div class="tavatar">AK</div>
+                    <div><strong>Anya Kowalski</strong><span>Head of Product, Vertex</span></div>
+                </div>
+            </div>
+            <div class="tcard">
+                <div class="stars">★★★★★</div>
+                <blockquote>"Flow Agent isn't a toy. It reads our existing design system and writes code I'd accept in review. It's the first AI tool my senior engineers actually want to use."</blockquote>
+                <div class="tauthor">
+                    <div class="tavatar">RM</div>
+                    <div><strong>Ravi Menon</strong><span>Staff Engineer, Hexa</span></div>
+                </div>
+            </div>
+            <div class="tcard">
+                <div class="stars">★★★★★</div>
+                <blockquote>"We shipped our customer portal in nine days. The fact that it exports real Git history meant our infra team didn't treat it like a prototype — they adopted it."</blockquote>
+                <div class="tauthor">
+                    <div class="tavatar">JL</div>
+                    <div><strong>Júlia Lima</strong><span>CTO, Pattern Labs</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="block pricing" id="pricing">
+    <div class="container">
+        <div class="sec-head">
+            <div class="eyebrow">Pricing</div>
+            <h2>Start free. Scale when ready.</h2>
+            <p>No seat traps, no vendor lock-in. Export your code any time.</p>
+        </div>
+        <div class="price-grid">
+            <div class="pcard">
+                <div class="pname">Hobby</div>
+                <div class="pprice">$0<small>/mo</small></div>
+                <div class="pdesc">For personal projects and learning.</div>
+                <a href="#" class="btn btn-ghost">Get started</a>
+                <ul class="pfeat">
+                    <li><i class="fas fa-check"></i> 3 projects</li>
+                    <li><i class="fas fa-check"></i> 500 Flow Agent runs / mo</li>
+                    <li><i class="fas fa-check"></i> Community support</li>
+                    <li><i class="fas fa-check"></i> Public projects</li>
+                </ul>
+            </div>
+            <div class="pcard pop">
+                <div class="ribbon">MOST POPULAR</div>
+                <div class="pname">Pro</div>
+                <div class="pprice">$29<small>/mo</small></div>
+                <div class="pdesc">For founders and freelancers shipping fast.</div>
+                <a href="#" class="btn btn-primary">Start 14-day trial</a>
+                <ul class="pfeat">
+                    <li><i class="fas fa-check"></i> Unlimited projects</li>
+                    <li><i class="fas fa-check"></i> 10,000 Flow Agent runs / mo</li>
+                    <li><i class="fas fa-check"></i> Private projects</li>
+                    <li><i class="fas fa-check"></i> Custom domains &amp; SSL</li>
+                    <li><i class="fas fa-check"></i> Priority support</li>
+                </ul>
+            </div>
+            <div class="pcard">
+                <div class="pname">Team</div>
+                <div class="pprice">$99<small>/mo</small></div>
+                <div class="pdesc">For teams building together.</div>
+                <a href="#" class="btn btn-ghost">Contact sales</a>
+                <ul class="pfeat">
+                    <li><i class="fas fa-check"></i> Everything in Pro</li>
+                    <li><i class="fas fa-check"></i> 5 seats included</li>
+                    <li><i class="fas fa-check"></i> SSO &amp; SCIM</li>
+                    <li><i class="fas fa-check"></i> Audit logs</li>
+                    <li><i class="fas fa-check"></i> Dedicated support</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="block" id="faq">
+    <div class="container">
+        <div class="sec-head">
+            <div class="eyebrow">FAQ</div>
+            <h2>Questions, answered</h2>
+        </div>
+        <div class="faq-list">
+            <div class="faq-item">
+                <div class="faq-q" onclick="this.parentElement.classList.toggle('open')"><span>Do I actually own the code I generate?</span><i class="fas fa-plus"></i></div>
+                <div class="faq-a">Yes. CodeFlow exports standard React, TypeScript, and SQL — no proprietary runtime, no lock-in. You can eject to a normal repo at any time and everything keeps working.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q" onclick="this.parentElement.classList.toggle('open')"><span>How is this different from a no-code tool?</span><i class="fas fa-plus"></i></div>
+                <div class="faq-a">No-code tools hide the code and cap what you can build. CodeFlow generates real, readable code from the first commit. When you hit a limit, you drop into the code — you're never stuck on someone else's platform.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q" onclick="this.parentElement.classList.toggle('open')"><span>Can I bring my existing codebase?</span><i class="fas fa-plus"></i></div>
+                <div class="faq-a">Connect a GitHub repo and CodeFlow indexes your components, schema, and design tokens. Flow Agent then generates code that matches your conventions, not generic boilerplate.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q" onclick="this.parentElement.classList.toggle('open')"><span>Where does my data live?</span><i class="fas fa-plus"></i></div>
+                <div class="faq-a">Each project gets a managed Postgres database in the region you choose. On Team plans you can bring your own database or self-host the runtime. We're SOC 2 Type II compliant.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q" onclick="this.parentElement.classList.toggle('open')"><span>What does Flow Agent actually write?</span><i class="fas fa-plus"></i></div>
+                <div class="faq-a">Typed React components, API routes, Prisma schema migrations, and tests. It respects your design system and only uses dependencies already in your project unless you approve a new one.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q" onclick="this.parentElement.classList.toggle('open')"><span>Is there a self-hosted option?</span><i class="fas fa-plus"></i></div>
+                <div class="faq-a">Team and Enterprise plans can self-host the CodeFlow runtime and editor within their own VPC. Talk to us about air-gapped and on-prem deployments.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section style="padding: 40px 0 100px">
+    <div class="container">
+        <div class="cta-band">
+            <h2>Start building in minutes</h2>
+            <p>Join 120,000+ developers shipping real products with CodeFlow.</p>
+            <a href="#" class="btn">Get started — it's free</a>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <div class="container">
+        <div class="foot-grid">
+            <div class="foot-about">
+                <a href="#" class="logo">
+                    <div class="logo-icon">
+                        <svg viewBox="0 0 100 100" fill="none"><path d="M30 35 L20 50 L30 65 M70 35 L80 50 L70 65 M58 28 L42 72" stroke="white" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                    <span>CodeFlow</span>
+                </a>
+                <p>The AI-native visual development platform. Build software visually, ship it like code.</p>
+            </div>
+            <div class="foot-col">
+                <h4>Product</h4>
+                <ul>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#workflow">How it works</a></li>
+                    <li><a href="#pricing">Pricing</a></li>
+                    <li><a href="#">Changelog</a></li>
+                    <li><a href="#">Roadmap</a></li>
+                </ul>
+            </div>
+            <div class="foot-col">
+                <h4>Developers</h4>
+                <ul>
+                    <li><a href="#">Documentation</a></li>
+                    <li><a href="#">CLI reference</a></li>
+                    <li><a href="#">API</a></li>
+                    <li><a href="#">Status</a></li>
+                    <li><a href="#">Templates</a></li>
+                </ul>
+            </div>
+            <div class="foot-col">
+                <h4>Company</h4>
+                <ul>
+                    <li><a href="#">About</a></li>
+                    <li><a href="#">Careers</a></li>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">Customers</a></li>
+                </ul>
+            </div>
+            <div class="foot-col">
+                <h4>Legal</h4>
+                <ul>
+                    <li><a href="#">Privacy</a></li>
+                    <li><a href="#">Terms</a></li>
+                    <li><a href="#">Security</a></li>
+                    <li><a href="#">DPA</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="foot-bottom">
+            <span>© 2026 CodeFlow, Inc. All rights reserved.</span>
+            <div class="foot-social">
+                <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                <a href="#" aria-label="X"><i class="fab fa-x-twitter"></i></a>
+                <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                <a href="#" aria-label="Discord"><i class="fab fa-discord"></i></a>
+                <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+        nav.classList.toggle('scrolled', window.scrollY > 20);
+    });
+    document.getElementById('mtoggle').addEventListener('click', () => {
+        const links = document.querySelector('.nav-links');
+        const open = links.style.display === 'flex';
+        links.style.display = open ? '' : 'flex';
+        links.style.flexDirection = 'column';
+        links.style.position = 'absolute';
+        links.style.top = '64px';
+        links.style.right = '24px';
+        links.style.background = 'var(--bg-card)';
+        links.style.border = '1px solid var(--border)';
+        links.style.padding = '16px';
+        links.style.borderRadius = '12px';
+        if (open) links.style.display = '';
+    });
+</script>
+
+</body>
+</html>
