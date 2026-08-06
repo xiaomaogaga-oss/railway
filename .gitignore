@@ -1,0 +1,33 @@
+# ==========================================================
+#  白名单式 .gitignore：默认忽略一切，仅放行构建必需文件
+#  新增无关文件不会被误推；需上传新文件时在此显式放行
+# ==========================================================
+
+# 默认忽略所有文件
+/*
+
+# --- 放行：构建必需文件 ---
+!.gitignore
+!.dockerignore
+!Dockerfile
+!index.js
+!package.json
+!package-lock.json
+
+# --- 放行：GitHub Actions（必须在 !.github 之前放行目录）---
+!.github/
+!.github/workflows/
+!.github/workflows/build-docker-image.yml
+
+# ==========================================================
+#  以下被忽略（明确列出，便于维护）
+# ==========================================================
+# node_modules/            npm install 重建，55MB
+# 高速住宅IP.mp4           无关二进制，38MB
+# 新建文本文档.txt         含真实凭据，切勿提交
+# *.md                     所有文档
+# extract_strings.js       调试脚本
+# find_context.js          调试脚本
+# indexold.js.txt          空文件
+# ✅优化完成.txt            笔记
+# indexhx.js               混淆产物，Dockerfile 构建时生成
